@@ -6,7 +6,7 @@
 
 (use-foreign-library libegl)
 
-(defctype EGLBoolean :uint32)
+(defctype EGLBoolean :uint)
 (defctype EGLDisplay :pointer)
 (defctype EGLConfig :pointer)
 (defctype EGLSurface :pointer)
@@ -24,6 +24,8 @@
   (:opengl-bit #x0008)
   (:opengl-es-bit #x0001)
   (:opengl-api #x30A2)
+  (:context-major-version #x3098)
+  (:context-minor-version #x30FB)
   (:none #x3038))
 
 (defcfun ("eglGetError" get-error) EGLint)
@@ -69,12 +71,21 @@
     (loop :for i :from 0 :to (- (mem-aref num-configs 'EGLint) 1)
        :collecting (mem-aref available-configs :pointer i))))
 
-(defcfun ("eglCreateContext" create-context) EGLContext
+(defcfun "eglCreateContext" EGLContext
   (display EGLDisplay)
   (config EGLConfig)
   (share-context EGLContext)
-  (atttrib-list (:pointer EGLint)))
-    
+  (attrib-list (:pointer EGLint)))
+
+(defun create-context (display config share-context &rest attribs)
+  (with-foreign-objects
+      ((requested-attribs 'EGLint (length attribs)))
+    (loop :for i :from 0 :to (- (length attribs) 1)
+       :do (setf (mem-aref requested-attribs 'EGLint i)
+		 (if (keywordp (nth i attribs))
+		     (foreign-enum-value 'eglenum (nth i attribs))
+		     (nth i attribs))))
+    (eglcreatecontext display config share-context requested-attribs)))
 
 (defcfun ("eglCreateWindowSurface" create-window-surface) EGLSurface
   (display EGLDisplay)
