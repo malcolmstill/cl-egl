@@ -1,9 +1,9 @@
 ;;;; cl-egl.asd
 
 (asdf:defsystem #:cl-egl
-  :description "Describe cl-egl here"
+  :description "Common Lisp wrapper for libEGL"
   :author "Malcolm Still"
-  :license "Specify license here"
+  :license "BSD3"
   :depends-on (#:cffi)
   :serial t
   :components ((:file "package")
