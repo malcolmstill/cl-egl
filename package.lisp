@@ -13,6 +13,7 @@
    swap-buffers
    destroy-surface
    destroy-context
-   terminate))
+   terminate
+   EGLenum))
 
 
