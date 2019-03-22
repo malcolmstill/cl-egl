@@ -2,6 +2,7 @@
 (in-package :egl)
 
 (define-foreign-library libegl
+  (:unix (:or "libEGL.so.1"))
   (t (:default "libEGL")))
 
 (use-foreign-library libegl)
@@ -26,6 +27,8 @@
   (:opengl-api #x30A2)
   (:context-major-version #x3098)
   (:context-minor-version #x30FB)
+  (:width #x3057)
+  (:height #x3056)
   (:none #x3038))
 
 (defcfun ("eglGetError" get-error) EGLint)
@@ -120,3 +123,45 @@
   (display EGLDisplay)
   (context EGLContext))
 
+(defcfun ("eglCreateImage" create-image) :pointer
+  (display EGLDisplay)
+  (context EGLContext)
+  (target EGLint)
+  (buffer :pointer)
+  (attrib-list (:pointer EGLint)))
+
+(defcfun ("eglDestroyImage" destroy-image) EGLBoolean
+  (display EGLDisplay)
+  (image :pointer))
+
+(defcfun ("eglGetProcAddress" get-proc-address) :pointer
+  (name :string))
+
+(defvar *query-wayland-buffer* nil)
+(defvar *bind-wayland-display* nil)
+(defvar *image-target-texture-2DOES* nil)
+
+(defun init-egl-wayland ()
+  (setf *bind-wayland-display* (get-proc-address "eglBindWaylandDisplayWL"))
+  (setf *query-wayland-display* (get-proc-address "eglQueryWaylandBufferWL"))
+  (setf *image-target-texture-2DOES* (get-proc-address "glEGLImageTargetTexture2DOES")))
+
+(defun bind-wayland-display (egl-display wl-display)
+  (foreign-funcall-pointer *bind-wayland-display* ()
+			   :pointer egl-display
+			   :pointer wl-display
+			   :void))
+
+(defun query-wayland-buffer (egl-display buffer attribute value)
+  (foreign-funcall-pointer *query-wayland-display* ()
+			   :pointer egl-display
+			   :pointer buffer
+			   EGLint attribute
+			   :pointer value
+			   EGLBoolean))
+
+(defun image-target-texture-2DOES (attribute egl-image)
+  (foreign-funcall-pointer *image-target-texture-2DOES* ()
+			   EGLint attribute
+			   :pointer egl-image
+			   :void))

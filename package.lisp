@@ -14,6 +14,13 @@
    destroy-surface
    destroy-context
    terminate
+   create-image
+   destroy-image
+   get-proc-address
+   init-egl-wayland
+   bind-wayland-display
+   query-wayland-buffer
+   image-target-texture-2DOES
    EGLenum))
 
 
