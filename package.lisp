@@ -20,6 +20,7 @@
    init-egl-wayland
    bind-wayland-display
    query-wayland-buffer
-   image-target-texture-2DOES))
+   image-target-texture-2DOES
+   EGLenum))
 
 
